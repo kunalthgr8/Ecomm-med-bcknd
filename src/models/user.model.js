@@ -2,16 +2,16 @@ import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
+// username: {
+//   type: String,
+//   required: true,
+//   unique: true,
+//   trim: true,
+//   lowercase: true,
+//   index: true,
+// },
 const userSchema = new Schema(
   {
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-      lowercase: true,
-      index: true,
-    },
     email: {
       type: String,
       required: true,
@@ -23,6 +23,20 @@ const userSchema = new Schema(
       type: String,
       required: true,
       trim: true,
+      lowercase: true,
+      index: true,
+    },
+    phoneNumber:{
+      type: Number,
+      required: true,
+      unique: true,
+      trim: true,
+      index: true,
+    },
+    gender:{
+      type: String,
+      trim: true,
+      lowercase: true,
       index: true,
     },
     password: {
@@ -46,13 +60,14 @@ userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
+// username: this.username,
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
       _id: this._id,
-      username: this.username,
       email: this.email,
       fullname: this.fullname,
+      phoneNumber: this.phoneNumber,
     },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }

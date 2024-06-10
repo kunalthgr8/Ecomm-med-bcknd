@@ -19,16 +19,16 @@ const genrateAccessAndRefreshToken = async (userId) => {
 };
 
 const registerUser = asyncHandler(async (req, res, next) => {
-  const { username, email, fullname, password } = req.body;
+  const {  email, fullname,phoneNumber, password } = req.body;
 
   // Check for empty fields
-  if (!username || !email || !fullname || !password) {
+  if ( !email || !fullname || !password || !phoneNumber) {
     throw new ApiError(400, "All fields are required");
   }
 
   // Check if user already exists
   const existingUser = await User.findOne({
-    $or: [{ username }, { email }],
+    $or: [ { email }, { phoneNumber }],
   });
 
   if (existingUser) {
@@ -37,9 +37,9 @@ const registerUser = asyncHandler(async (req, res, next) => {
 
   // Save user to the database
   const user = await User.create({
-    username,
     email,
     fullname,
+    phoneNumber,
     password,
   });
 
@@ -50,9 +50,9 @@ const registerUser = asyncHandler(async (req, res, next) => {
   // Send response without password
   return res.status(201).json(
     new ApiResponse(201, {
-      username: user.username,
       email: user.email,
       fullname: user.fullname,
+      phoneNumber: user.phoneNumber,
     })
   );
 });
@@ -107,15 +107,21 @@ const loginUser = asyncHandler(async (req, res, next) => {
 });
 
 const logoutUser = asyncHandler(async (req, res, next) => {
-  await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      $set: { refreshToken: undefined },
-    },
-    {
-      new: true,
-    }
-  );
+  const user =  await User.findById(req.user._id);
+  console.log(user);
+  user.refreshToken = undefined;
+  console.log(user);
+  await user.save({ validateBeforeSave: false });
+
+  // await User.findByIdAndUpdate(
+  //   req.user._id,
+  //   {
+  //     $set: { refreshToken: undefined },
+  //   },
+  //   {
+  //     new: true,
+  //   }
+  // );
   const option = {
     httpOnly: true,
     secure: true,
@@ -183,7 +189,6 @@ const refreshAccessToken = asyncHandler(async (req, res, next) => {
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
-  console.log(req.body);
 
   const user = await User.findById(req.user?._id);
   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
@@ -193,7 +198,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
   }
 
   user.password = newPassword;
-  await user.save({ validateBeforeSave: false });
+  await user.save();
 
   return res
     .status(200)
@@ -206,6 +211,35 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, req.user, "User fetched successfully"));
 });
 
+
+const editUserDetails = asyncHandler(async (req, res) => {
+  const { email, fullname, phoneNumber, gender} = req.body;
+  if(!email || !fullname || !phoneNumber || !gender){
+    throw new ApiError(400, "All fields are required");
+  }
+  const user = await User.findById(req.user._id);
+  if(!user){
+    throw new ApiError(404, "User not found");
+  }
+
+  const findUserByNewEmail = await User.findOne({ email });
+  if(findUserByNewEmail && findUserByNewEmail._id.toString() !== req.user._id.toString() ){
+    throw new ApiError(400, "Email already exists");
+  }
+
+  user.email = email;
+  user.fullname = fullname;
+  user.phoneNumber = phoneNumber;
+  user.gender = gender;
+  const userUpdated = await user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, userUpdated, "User updated successfully"));
+
+})
+
+
 export {
   registerUser,
   loginUser,
@@ -213,4 +247,5 @@ export {
   refreshAccessToken,
   changeCurrentPassword,
   getCurrentUser,
+  editUserDetails
 };
