@@ -26,14 +26,14 @@ const userSchema = new Schema(
       lowercase: true,
       index: true,
     },
-    phoneNumber:{
+    phoneNumber: {
       type: Number,
       required: true,
       unique: true,
       trim: true,
       index: true,
     },
-    gender:{
+    gender: {
       type: String,
       trim: true,
       lowercase: true,
@@ -45,6 +45,33 @@ const userSchema = new Schema(
     },
     refreshToken: {
       type: String,
+    },
+    address: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      index: true,
+    },
+    role: {
+      type: String,
+      default: "user",
+    },
+    city: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      index: true,
+    },
+    pincode: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    district: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      index: true,
     },
   },
   { timestamps: true }

@@ -19,16 +19,16 @@ const genrateAccessAndRefreshToken = async (userId) => {
 };
 
 const registerUser = asyncHandler(async (req, res, next) => {
-  const {  email, fullname,phoneNumber, password } = req.body;
+  const { email, fullname, phoneNumber, password } = req.body;
 
   // Check for empty fields
-  if ( !email || !fullname || !password || !phoneNumber) {
+  if (!email || !fullname || !password || !phoneNumber) {
     throw new ApiError(400, "All fields are required");
   }
 
   // Check if user already exists
   const existingUser = await User.findOne({
-    $or: [ { email }, { phoneNumber }],
+    $or: [{ email }, { phoneNumber }],
   });
 
   if (existingUser) {
@@ -107,7 +107,7 @@ const loginUser = asyncHandler(async (req, res, next) => {
 });
 
 const logoutUser = asyncHandler(async (req, res, next) => {
-  const user =  await User.findById(req.user._id);
+  const user = await User.findById(req.user._id);
   console.log(user);
   user.refreshToken = undefined;
   console.log(user);
@@ -211,19 +211,21 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, req.user, "User fetched successfully"));
 });
 
-
 const editUserDetails = asyncHandler(async (req, res) => {
-  const { email, fullname, phoneNumber, gender} = req.body;
-  if(!email || !fullname || !phoneNumber || !gender){
+  const { email, fullname, phoneNumber, gender } = req.body;
+  if (!email || !fullname || !phoneNumber || !gender) {
     throw new ApiError(400, "All fields are required");
   }
   const user = await User.findById(req.user._id);
-  if(!user){
+  if (!user) {
     throw new ApiError(404, "User not found");
   }
 
   const findUserByNewEmail = await User.findOne({ email });
-  if(findUserByNewEmail && findUserByNewEmail._id.toString() !== req.user._id.toString() ){
+  if (
+    findUserByNewEmail &&
+    findUserByNewEmail._id.toString() !== req.user._id.toString()
+  ) {
     throw new ApiError(400, "Email already exists");
   }
 
@@ -236,9 +238,34 @@ const editUserDetails = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, userUpdated, "User updated successfully"));
+});
 
-})
+const updateLocationDetails = asyncHandler(async (req, res) => {
+  const { address, city, pincode, district } = req.body;
+  if (!address || !city || !pincode || !district) {
+    throw new ApiError(400, "All fields are required");
+  }
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
 
+  user.address = address;
+  user.city = city;
+  user.pincode = pincode;
+  user.district = district;
+  const userUpdated = await user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        userUpdated,
+        "User location details updated successfully"
+      )
+    );
+});
 
 export {
   registerUser,
@@ -247,5 +274,6 @@ export {
   refreshAccessToken,
   changeCurrentPassword,
   getCurrentUser,
-  editUserDetails
+  editUserDetails,
+  updateLocationDetails,
 };
