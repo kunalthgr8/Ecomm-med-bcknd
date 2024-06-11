@@ -49,3 +49,14 @@ export const logoutUserPerma = asyncHandler(async (req, res, next) => {
     throw new ApiError(401, "Unauthorized request - Invalid token");
   }
 });
+
+export const isUserAdmin = asyncHandler(async (req, res, next) => {
+  try {
+    if (req.user?.role !== "admin") {
+      throw new ApiError(403, "Unauthorized request - Admin only");
+    }
+    next();
+  } catch (error) {
+    throw new ApiError(403, "Unauthorized request - Admin only");
+  }
+});

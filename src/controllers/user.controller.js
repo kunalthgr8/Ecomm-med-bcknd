@@ -19,11 +19,14 @@ const genrateAccessAndRefreshToken = async (userId) => {
 };
 
 const registerUser = asyncHandler(async (req, res, next) => {
-  const { email, fullname, phoneNumber, password } = req.body;
+  const { email, fullname, phoneNumber, password, role } = req.body;
 
   // Check for empty fields
   if (!email || !fullname || !password || !phoneNumber) {
     throw new ApiError(400, "All fields are required");
+  }
+  if(role==="") {
+    role = "user";
   }
 
   // Check if user already exists
@@ -41,6 +44,7 @@ const registerUser = asyncHandler(async (req, res, next) => {
     fullname,
     phoneNumber,
     password,
+    role,
   });
 
   if (!user) {
@@ -53,6 +57,7 @@ const registerUser = asyncHandler(async (req, res, next) => {
       email: user.email,
       fullname: user.fullname,
       phoneNumber: user.phoneNumber,
+      role: user.role,
     })
   );
 });
