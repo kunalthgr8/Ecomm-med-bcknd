@@ -23,6 +23,15 @@ export const newOrder = asyncHandler(async (req, res, next) => {
     totalPrice,
     orderStatus,
   } = req.body;
+  console.log("Order Items:", orderItems);
+  console.log("Payment Info:", paymentInfo);
+  console.log("Paid At:", paidAt);
+  console.log("Items Price:", itemsPrice);
+  console.log("Tax Price:", taxPrice);
+  console.log("Shipping Price:", shippingPrice);
+  console.log("Total Price:", totalPrice);
+  console.log("Order Status:", orderStatus);
+  console.log("User:", req.user);
   if (!orderItems || orderItems.length === 0) {
     throw new ApiError(400, "No order items");
   }

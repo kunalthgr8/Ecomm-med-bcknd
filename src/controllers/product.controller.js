@@ -18,7 +18,25 @@ const getProductById = asyncHandler(async (req, res, next) => {
 });
 
 const createProduct = asyncHandler(async (req, res, next) => {
-  const product = await Product.create(req.body);
+  const { name, price, description, image, brand, category, stock } = req.body;
+  const userId = req.user._id;
+  if(!name || !price || !description || !image || !category || !stock){
+    throw new ApiError(400, "All fields are required");
+  }
+
+  const product = await Product.create({
+    name,
+    price,
+    description,
+    image,
+    category,
+    stock,
+    user: userId,
+  });
+  if(!product){
+    throw new ApiError(500, "Product not created");
+  }
+
   res.status(201).json(new ApiResponse(201, product));
 });
 
@@ -42,7 +60,7 @@ const deleteProduct = asyncHandler(async (req, res, next) => {
   if (!product) {
     throw new ApiError(404, "Product not found");
   }
-  await await Product.findByIdAndDelete(req.params.id);
+   await Product.findByIdAndDelete(req.params.id);
   res.status(204).json(new ApiResponse(204, {}));
 });
 
