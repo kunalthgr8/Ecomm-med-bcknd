@@ -245,6 +245,20 @@ const editUserDetails = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, userUpdated, "User updated successfully"));
 });
 
+const updateUserToSeller = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  user.role = "admin";
+  const userUpdated = await user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, userUpdated, "User updated to seller"));
+})
+
 const updateLocationDetails = asyncHandler(async (req, res) => {
   const { address, city, pincode, district } = req.body;
   if (!address || !city || !pincode || !district) {
@@ -281,4 +295,5 @@ export {
   getCurrentUser,
   editUserDetails,
   updateLocationDetails,
+  updateUserToSeller,
 };

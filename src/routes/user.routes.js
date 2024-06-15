@@ -8,6 +8,7 @@ import {
   getCurrentUser,
   editUserDetails,
   updateLocationDetails,
+  updateUserToSeller,
 } from "../controllers/user.controller.js";
 import { verifyJWT, logoutUserPerma } from "../middlewares/auth.middleware.js";
 
@@ -23,5 +24,6 @@ router.route("/changePassword").post(verifyJWT, changeCurrentPassword);
 router.route("/me").get(verifyJWT, getCurrentUser);
 router.route("/updateUserDetails").put(verifyJWT, editUserDetails);
 router.route("/updateLocationDetails").put(verifyJWT, updateLocationDetails);
+router.route("/updateToSeller").put(verifyJWT, updateUserToSeller);
 
 export default router;

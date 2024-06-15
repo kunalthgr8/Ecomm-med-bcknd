@@ -73,6 +73,10 @@ const userSchema = new Schema(
       lowercase: true,
       index: true,
     },
+    orders: {
+      type: Number,
+      default: 0,
+    }
   },
   { timestamps: true }
 );
