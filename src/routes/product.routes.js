@@ -8,6 +8,7 @@ import {
   createProductReview,
   getProductReviews,
   deleteReview,
+  getAdminProducts,
 } from "../controllers/product.controller.js";
 import { verifyJWT, isUserAdmin } from "../middlewares/auth.middleware.js";
 const router = Router();
@@ -18,8 +19,13 @@ router.route("/products/reviews/:id").get(getProductReviews);
 // Admin Routes
 router.route("/createProduct").post(verifyJWT, isUserAdmin, createProduct);
 router.route("/productUpdate/:id").put(verifyJWT, isUserAdmin, updateProduct);
-router.route("/productDelete/:id").delete(verifyJWT, isUserAdmin, deleteProduct);
+router
+  .route("/productDelete/:id")
+  .delete(verifyJWT, isUserAdmin, deleteProduct);
+router.route("/adminProducts").get(verifyJWT, isUserAdmin, getAdminProducts);
 // User Review Routes
 router.route("/productReview/review/:id").post(verifyJWT, createProductReview);
-router.route("/productReviewDelete/:id/review/:reviewId").delete(verifyJWT, deleteReview);
+router
+  .route("/productReviewDelete/:id/review/:reviewId")
+  .delete(verifyJWT, deleteReview);
 export default router;

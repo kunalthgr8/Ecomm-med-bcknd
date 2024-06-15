@@ -18,9 +18,9 @@ const getProductById = asyncHandler(async (req, res, next) => {
 });
 
 const createProduct = asyncHandler(async (req, res, next) => {
-  const { name, price, description, image, brand, category, stock } = req.body;
+  const { name, price, description, image, category, stock } = req.body;
   const userId = req.user._id;
-  if(!name || !price || !description || !image || !category || !stock){
+  if (!name || !price || !description || !image || !category || !stock) {
     throw new ApiError(400, "All fields are required");
   }
 
@@ -33,7 +33,7 @@ const createProduct = asyncHandler(async (req, res, next) => {
     stock,
     user: userId,
   });
-  if(!product){
+  if (!product) {
     throw new ApiError(500, "Product not created");
   }
 
@@ -42,6 +42,7 @@ const createProduct = asyncHandler(async (req, res, next) => {
 
 const updateProduct = asyncHandler(async (req, res, next) => {
   let product = await Product.findById(req.params.id);
+  console.log(req.body);
 
   if (!product) {
     throw new ApiError(404, "Product not found");
@@ -60,19 +61,23 @@ const deleteProduct = asyncHandler(async (req, res, next) => {
   if (!product) {
     throw new ApiError(404, "Product not found");
   }
-   await Product.findByIdAndDelete(req.params.id);
+  await Product.findByIdAndDelete(req.params.id);
   res.status(204).json(new ApiResponse(204, {}));
 });
 
 const createProductReview = asyncHandler(async (req, res, next) => {
-  const { rating, comment, productId } = req.body;
+  const { rating, comment } = req.body;
   const product = await Product.findById(req.params.id);
 
   if (!product) {
     throw new ApiError(404, "Product not found");
   }
+
   const userDetail = await User.findById(req.user);
 
+  if (!userDetail) {
+    throw new ApiError(404, "User not found");
+  }
   const alreadyReviewed = product.reviews.find(
     (review) => review.user.toString() === userDetail._id.toString()
   );
@@ -142,7 +147,23 @@ const deleteReview = asyncHandler(async (req, res, next) => {
   res.status(204).json(new ApiResponse(204, {}));
 });
 
+const getAdminProducts = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    throw new ApiError(401, "No user Found");
+  }
+  if (user.role === "user") {
+    throw new ApiError(401, "You are not authorized to view this page");
+  }
+  const products = await Product.find({ user: req.user._id });
+  if (!products && products.length === 0) {
+    throw new ApiError(404, "No products found");
+  }
+  res.status(200).json(new ApiResponse(200, products));
+});
+
 export {
+  getAdminProducts,
   getAllProducts,
   getProductById,
   createProduct,
