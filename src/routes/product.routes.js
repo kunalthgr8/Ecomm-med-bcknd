@@ -9,6 +9,7 @@ import {
   getProductReviews,
   deleteReview,
   getAdminProducts,
+  getProductCategories,
 } from "../controllers/product.controller.js";
 import { verifyJWT, isUserAdmin } from "../middlewares/auth.middleware.js";
 const router = Router();
@@ -16,6 +17,7 @@ const router = Router();
 router.route("/products").get(getAllProducts);
 router.route("/products/:id").get(getProductById);
 router.route("/products/reviews/:id").get(getProductReviews);
+router.route("/categories").get(getProductCategories);
 // Admin Routes
 router.route("/createProduct").post(verifyJWT, isUserAdmin, createProduct);
 router.route("/productUpdate/:id").put(verifyJWT, isUserAdmin, updateProduct);

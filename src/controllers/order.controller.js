@@ -19,7 +19,7 @@ export const newOrder = asyncHandler(async (req, res, next) => {
   } = req.body;
 
   if (!orderItems || orderItems.length === 0) {
-    throw new ApiError(400, "No order items");
+    return next(new ApiError(400, "No order items"));
   }
 
   const session = await mongoose.startSession();
@@ -75,12 +75,20 @@ export const newOrder = asyncHandler(async (req, res, next) => {
     }
 
     await session.commitTransaction();
-    session.endSession();
-
     res.status(201).json(new ApiResponse(201, order));
   } catch (error) {
     await session.abortTransaction();
+    next(error);
+  } finally {
     session.endSession();
+  }
+});
+
+export const getMyOrders = asyncHandler(async (req, res, next) => {
+  try {
+    const orders = await Order.find({ user: req.user._id });
+    res.status(200).json(new ApiResponse(200, orders));
+  } catch (error) {
     next(error);
   }
 });

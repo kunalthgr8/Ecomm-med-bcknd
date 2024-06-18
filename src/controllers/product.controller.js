@@ -5,7 +5,23 @@ import { Product } from "../models/product.model.js";
 import { User } from "../models/user.model.js";
 
 const getAllProducts = asyncHandler(async (req, res, next) => {
-  const products = await Product.find({});
+  let filters = {};
+  if (req.query.category) {
+    filters.category = req.query.category;
+  }
+  if (req.query.minPrice) {
+    filters.price = { $gte: req.query.minPrice };
+  }
+  if (req.query.maxPrice) {
+    filters.price = { ...filters.price, $lte: req.query.maxPrice };
+  }
+
+  let searchQuery = {};
+  if (req.query.search) {
+    searchQuery = { $text: { $search: req.query.search } };
+  }
+
+  const products = await Product.find({ $and: [filters, searchQuery] });
   res.status(200).json(new ApiResponse(200, products));
 });
 
@@ -118,6 +134,33 @@ const getProductReviews = asyncHandler(async (req, res, next) => {
   res.status(200).json(new ApiResponse(200, product.reviews));
 });
 
+const getProductCategories = asyncHandler(async (req, res, next) => {
+  const categories = await Product.aggregate([
+    {
+      $group: {
+        _id: "$category",
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        category: "$_id",
+      },
+    },
+  ]);
+
+  if (!categories.length) {
+    throw new ApiError(404, "No categories found");
+  }
+
+  res.status(200).json(
+    new ApiResponse(
+      200,
+      categories.map((cat) => cat.category)
+    )
+  );
+});
+
 const deleteReview = asyncHandler(async (req, res, next) => {
   const product = await Product.findById(req.params.id);
 
@@ -172,4 +215,5 @@ export {
   createProductReview,
   getProductReviews,
   deleteReview,
+  getProductCategories,
 };
