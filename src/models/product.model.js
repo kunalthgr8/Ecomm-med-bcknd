@@ -37,7 +37,7 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    customers:{
+    customers: {
       type: Number,
       default: 0,
     },
@@ -62,9 +62,13 @@ const productSchema = new mongoose.Schema(
       required: true,
       ref: "User",
     },
+    totalProfit: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
   { timestamps: true }
 );
-
 
 export const Product = mongoose.model("Product", productSchema);

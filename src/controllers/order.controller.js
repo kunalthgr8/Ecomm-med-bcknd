@@ -40,6 +40,7 @@ export const newOrder = asyncHandler(async (req, res, next) => {
 
       product.stock -= item.qty;
       product.customers += 1;
+      product.totalProfit += item.qty * item.price; // Calculate and update total profit
       await product.save({ session });
 
       ownerIds.add(product.user.toString());
