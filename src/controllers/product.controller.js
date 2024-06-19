@@ -162,6 +162,8 @@ const getProductCategories = asyncHandler(async (req, res, next) => {
 });
 
 const deleteReview = asyncHandler(async (req, res, next) => {
+  console.log("ProductId", req.params.id, "ReviewId", req.params.reviewId);
+
   const product = await Product.findById(req.params.id);
 
   if (!product) {
@@ -180,13 +182,22 @@ const deleteReview = asyncHandler(async (req, res, next) => {
     .map((review) => review._id.toString())
     .indexOf(req.params.reviewId);
 
+  console.log("RemoveIndex", removeIndex);
+
   product.reviews.splice(removeIndex, 1);
   product.numReviews = product.reviews.length;
-  product.rating =
-    product.reviews.reduce((acc, item) => item.rating + acc, 0) /
-    product.reviews.length;
+  if (product.numReviews === 0) {
+    product.rating = 0;
+  } else {
+    product.rating =
+      product.reviews.reduce((acc, item) => item.rating + acc, 0) /
+      product.reviews.length;
+  }
 
-  await product.save();
+  console.log("Product", product);
+
+  const resp = await product.save();
+  console.log("Resp", resp);
   res.status(204).json(new ApiResponse(204, {}));
 });
 
