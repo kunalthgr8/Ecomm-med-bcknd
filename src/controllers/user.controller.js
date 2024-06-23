@@ -113,9 +113,7 @@ const loginUser = asyncHandler(async (req, res, next) => {
 
 const logoutUser = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user._id);
-  console.log(user);
   user.refreshToken = undefined;
-  console.log(user);
   await user.save({ validateBeforeSave: false });
 
   // await User.findByIdAndUpdate(
@@ -131,7 +129,6 @@ const logoutUser = asyncHandler(async (req, res, next) => {
     httpOnly: true,
     secure: true,
   };
-  console.log(req.cookies.accessToken, req.cookies.refreshToken);
   return res
     .status(200)
     .clearCookie("accessToken", option)
