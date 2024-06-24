@@ -1,10 +1,11 @@
+import mongoose from "mongoose";
+import Stripe from "stripe";
 import { Order } from "../models/order.model.js";
 import { Product } from "../models/product.model.js";
 import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import mongoose from "mongoose";
 
 export const newOrder = asyncHandler(async (req, res, next) => {
   const {
@@ -93,3 +94,35 @@ export const getMyOrders = asyncHandler(async (req, res, next) => {
     next(error);
   }
 });
+
+export const payment  = asyncHandler(async (req, res, next) => {
+    
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+  const {
+    orderItems,
+  } = req.body;
+  try {
+    const session = await stripe.checkout.sessions.create({
+      
+      line_items: orderItems.map((item) => ({
+        price_data: {
+          currency: "usd",
+          product_data: {
+            name: item.name,
+            images: [item.image],
+          },
+          unit_amount: parseInt(item.price * item.qty+(item.price * item.qty)*0.3 + 10), // Calculate total price of particular item adding tax and shipping
+        },
+        quantity: item.qty,
+      })),
+
+      mode: "payment",
+      success_url: "http://localhost:5173/",
+      cancel_url: "http://localhost:5173/stepper",
+    });
+    res.status(200).json({ url: session.url });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+);
