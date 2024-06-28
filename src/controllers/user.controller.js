@@ -25,6 +25,9 @@ const registerUser = asyncHandler(async (req, res, next) => {
   if (!email || !fullname || !password || !phoneNumber) {
     throw new ApiError(400, "All fields are required");
   }
+  if(password.length < 10) {
+    throw new ApiError(400, "Password must be at least 10 characters");
+  }
   if(role==="") {
     role = "user";
   }
@@ -217,6 +220,9 @@ const editUserDetails = asyncHandler(async (req, res) => {
   const { email, fullname, phoneNumber, gender } = req.body;
   if (!email || !fullname || !phoneNumber || !gender) {
     throw new ApiError(400, "All fields are required");
+  }
+  if(phoneNumber.length !== 10) {
+    throw new ApiError(400, "Phone number must be 10 digits");
   }
   const user = await User.findById(req.user._id);
   if (!user) {

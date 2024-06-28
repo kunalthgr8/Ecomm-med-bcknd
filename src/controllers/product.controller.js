@@ -58,6 +58,10 @@ const createProduct = asyncHandler(async (req, res, next) => {
 
 const updateProduct = asyncHandler(async (req, res, next) => {
   let product = await Product.findById(req.params.id);
+  const { name, price, description, image, category, stock } = req.body;
+  if (!name || !price || !description || !image || !category || !stock) {
+    throw new ApiError(400, "All fields are required");
+  }
 
   if (!product) {
     throw new ApiError(404, "Product not found");
