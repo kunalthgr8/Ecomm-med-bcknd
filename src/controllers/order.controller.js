@@ -117,7 +117,7 @@ export const payment  = asyncHandler(async (req, res, next) => {
       })),
 
       mode: "payment",
-      success_url: "https://ecomm-med.vercel.app",
+      success_url: "https://ecomm-med.vercel.app/",
       cancel_url: "https://ecomm-med.vercel.app/stepper",
     });
     res.status(200).json({ url: session.url });
